@@ -16,6 +16,7 @@ import com.example.flixterapp.R.id.list
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -42,6 +43,12 @@ class PopularMovieFragment : Fragment(), OnListFragmentInteractionListener {
         return view
     }
 
+    fun createJson() = Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+        useAlternativeNames = false
+    }
+
     /*
      * Updates the RecyclerView adapter with new data.  This is where the
      * networking magic happens!
@@ -56,7 +63,7 @@ class PopularMovieFragment : Fragment(), OnListFragmentInteractionListener {
 
         // Using the client, perform the HTTP request
         client[
-        "https://api.themoviedb.org/3/movie/now_playing?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed",
+        "https://api.themoviedb.org/3/movie/popular?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed",
         params,
         object : JsonHttpResponseHandler() {
             /*
