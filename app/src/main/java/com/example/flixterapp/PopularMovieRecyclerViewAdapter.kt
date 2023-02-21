@@ -1,5 +1,7 @@
 package com.example.flixterapp
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,63 +9,54 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.flixterapp.R.id
-/**
- * [RecyclerView.Adapter] that can display a [Movies] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- */
-class PopularMovieRecyclerViewAdapter(
-    private val movies: List<Movies>,
-    private val mListener: OnListFragmentInteractionListener?
-    )
-    : RecyclerView.Adapter<PopularMovieRecyclerViewAdapter.MovieViewHolder>()
-    {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_most_popular_movies, parent, false)
-        return MovieViewHolder(view)
+
+const val ARTICLE_EXTRA = "ARTICLE_EXTRA"
+private const val TAG = "ArticleAdapter"
+
+class ArticleAdapter(private val context: Context, private val articles: List<Article>) :
+    RecyclerView.Adapter<ArticleAdapter.ViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_article, parent, false)
+        return ViewHolder(view)
     }
 
-    /**
-     * This inner class lets us refer to all the different View elements
-     * (Yes, the same ones as in the XML layout files!)
-     */
-    inner class MovieViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        var mMovies: Movies? = null
-        val mMovieTitle: TextView = mView.findViewById<View>(id.movie_title) as TextView
-        val mMovieOverview: TextView = mView.findViewById<View>(id.movie_overview) as TextView
-        val mMovieImage: ImageView = mView.findViewById<View>(id.movie_image) as ImageView
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val article = articles[position]
+        holder.bind(article)
+    }
 
-        override fun toString(): String {
-            return mMovies.toString() + " '" + mMovieTitle.text + "'" + mMovieOverview.text
+    override fun getItemCount() = articles.size
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener {
+
+        private val mediaImageView = itemView.findViewById<ImageView>(R.id.mediaImage)
+        private val titleTextView = itemView.findViewById<TextView>(R.id.mediaTitle)
+        private val abstractTextView = itemView.findViewById<TextView>(R.id.mediaAbstract)
+
+        init {
+            itemView.setOnClickListener(this)
         }
-    }
 
-    /**
-     * This lets us "bind" each Views in the ViewHolder to its' actual data!
-     */
-    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        val movie = movies[position]
+        // TODO: Write a helper method to help set up the onBindViewHolder method
+        fun bind(article: Article) {
+            titleTextView.text = article.headline?.main
+            abstractTextView.text = article.abstract
 
-        holder.mMovies = movie
-        holder.mMovieTitle.text = movie.title
-        holder.mMovieOverview.text = movie.overview
-        Glide.with(holder.mView)
-            .load("https://image.tmdb.org/t/p/w500"+movie.imageUrlhalf)
-            .placeholder(R.drawable.ic_launcher_foreground)
-            .into(holder.mMovieImage)
-
-        holder.mView.setOnClickListener {
-            holder.mMovies?.let { movie ->
-                mListener?.onItemClick(movie)
-            }
+            Glide.with(context)
+                .load(article.mediaImageUrl)
+                .into(mediaImageView)
         }
-    }
 
-    /**
-     * Remember: RecyclerView adapters require a getItemCount() method.
-     */
-     override fun getItemCount(): Int {
-        return movies.size
+        override fun onClick(v: View?) {
+            // TODO: Get selected article
+            val article = articles[absoluteAdapterPosition]
+
+            // TODO: Navigate to Details screen and pass selected article
+            val intent = Intent(context, DetailActivity::class.java)
+            intent.putExtra(ARTICLE_EXTRA, article)
+            context.startActivity(intent)
+        }
     }
 }
